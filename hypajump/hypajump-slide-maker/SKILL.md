@@ -15,14 +15,26 @@ metadata:
 
 Turns a HypaJump Engineering Response brief into a complete OpenSlide deck.
 
+## Mandatory alignment contract
+
+Before planning or writing any deck, read `03_engineering_response/ENGINEERING_RESPONSE_ALIGNMENT.md` from the project repo. Treat it as the acceptance criteria, not a reference. The deck is not ready unless it matches:
+
+- §7 crosswalk: Cover, What we build — modules, User flows, Core engine / key idea, Operations & security, What gets delivered, Product preview, Tech stack & deployment, Build estimate.
+- §4 boilerplate rule: Tech stack documents deltas only. Do not restate standard FastAPI, React, Postgres, Clerk, Docker, CI, or routine dashboard behaviour.
+- §6 theme rule: exact HypaJump `design` export, fonts, components, footer brand line.
+- §10 checklist: source-data gate visible, open questions carried, mockups/wireframes included, build-days and infra/API cost drivers present, no commercial proposal content.
+
+If the brief structure differs from the alignment crosswalk, map the brief into the alignment crosswalk. Do not mirror the brief headings blindly.
+
 ## What this skill does
 
-1. Reads the Engineering Response brief from `03_engineering_response/`.
-2. Picks a kebab-case deck id (e.g. `acme-engineering-response`).
-3. Maps each brief section into deck pages.
-4. Applies the HypaJump design system (palette, fonts, components).
-5. Writes `slides/<kebab-id>/index.tsx` + drops assets into `slides/<kebab-id>/assets/`.
-6. Loads `hypajump-slide-initializer` to render the deck in the foundry.
+1. Reads `03_engineering_response/ENGINEERING_RESPONSE_ALIGNMENT.md`.
+2. Reads the Engineering Response brief from `03_engineering_response/`.
+3. Picks a kebab-case deck id (e.g. `acme-engineering-response`).
+4. Maps the brief into the alignment crosswalk page roles.
+5. Applies the HypaJump design system (palette, fonts, components).
+6. Writes `slides/<kebab-id>/index.tsx` + drops assets into `slides/<kebab-id>/assets/`.
+7. Loads `hypajump-slide-initializer` to copy the deck into the foundry and render it.
 
 ## How it uses OpenSlide skills
 
@@ -30,7 +42,7 @@ This skill is the **HypaJump content layer** on top of OpenSlide's authoring ski
 
 - **`create-slide`** — consulted for the overall slide authoring workflow (picking an id, planning page roles, committing to a visual direction, writing `index.tsx`).
 - **`slide-authoring`** — consulted for the technical reference (1920×1080 canvas, type scale, layout rules, file contract, assets, transitions).
-- **`hypajump-slide-initializer`** — used to install/find the foundry, symlink the deck, register it in `.folders.json`, and run the dev server.
+- **`hypajump-slide-initializer`** — used to install/find the foundry, copy the deck into the foundry, register it in `.folders.json`, and run the dev server.
 
 This skill **skips the user-interview phase** of `create-slide` because the Engineering Response brief already provides the topic, scope, structure, and visual direction (HypaJump).
 
@@ -44,16 +56,22 @@ This skill **skips the user-interview phase** of `create-slide` because the Engi
 
 ## Section → page mapping
 
-| Engineering Response section | Deck page role |
-| --- | --- |
-| Problem / workflow removed | Cover + context |
-| Behaviour outcome | What it makes happen |
-| Core mechanism | Core engine / key idea |
-| Modules + user flows | What we build + User flows |
-| Operations & security | Security & Ops spec |
-| Product preview | Product preview (image assets) |
-| Tech stack & deployment | Tech stack (deltas only) |
-| Build estimate | Build estimate + cost drivers |
+Use the `ENGINEERING_RESPONSE_ALIGNMENT.md §7` crosswalk as the source of truth. Standard page order:
+
+| Alignment section | Deck page role | Rules |
+| --- | --- | --- |
+| Cover | Cover | Project name, one-line app description, build window/days |
+| What we build — modules | What We Build | 2–4 customer-readable modules, not internal CRUD/task breakdown |
+| User flows | User Flow | Step sequence per role, e.g. `Create job → Upload PDFs → Process → Review → Export` |
+| Core engine / key idea | Core Engine | The differentiated mechanism in plain language |
+| Operations & security | Security & Ops | Database, auth, storage, backup/recovery, audit logging |
+| What gets delivered | Delivery Scope | Milestones plus explicit in/out scope boundary |
+| Product preview | Product Preview | Real mockup/screenshot/wireframe asset or JSX wireframe; must fit canvas |
+| Tech stack & deployment | Tech Stack | Deltas only vs HypaJump boilerplate + hosting/API decisions |
+| Build estimate | Build Estimate | Milestones × effort/days + infra/API cost drivers only |
+| Source data / open questions | Source Data Gate | Required when blockers or estimate conditions remain |
+
+Do not use the old brief-heading mapping as the page plan. The deck exists to feed Brett's proposal containers.
 
 ## HypaJump design system
 
@@ -173,26 +191,34 @@ const Pill = ({ children }: { children: React.ReactNode }) => (
 
 ## Workflow
 
-1. Read the brief.
-2. Derive or confirm `deck_id`.
-3. Create `slides/<deck_id>/` and `slides/<deck_id>/assets/`.
-4. Plan pages using the section mapping above. Keep the page count tight (6–10 pages is standard).
-5. Write `index.tsx` with:
-   - imports and `design` export
+1. Read `03_engineering_response/ENGINEERING_RESPONSE_ALIGNMENT.md`.
+2. Read the brief.
+3. Create a page plan from the alignment §7 crosswalk, not from the brief headings.
+4. Check the plan against §10 checklist before writing code.
+5. Derive or confirm `deck_id`.
+6. Create `slides/<deck_id>/` and `slides/<deck_id>/assets/`.
+7. Write `index.tsx` with:
+   - imports and exact `design` export
    - inline `Title`, `Eyebrow`, `Footer`, `Pill`
-   - one `Page` component per section
+   - one `Page` component per alignment section
    - `meta` export with title and `createdAt`
    - default export array
-6. Copy mockups/screenshots/diagrams into `assets/` and import them.
-7. Load `hypajump-slide-initializer` to symlink, register, and render the deck.
+8. Include a Product Preview wireframe/mockup. If no image asset exists, build a JSX wireframe page and add a note that it is the preview mockup.
+9. Load `hypajump-slide-initializer` to copy, register, and render the deck.
+10. After every later update to `slides/<deck_id>/index.tsx` or assets, immediately copy the updated deck into the foundry render folder before checking the browser. Do not leave the foundry copy stale.
+11. Run `npm run build` in the foundry and inspect all pages for overflow.
+12. Re-check against alignment §7 and §10 before saying the deck is ready.
 
 ## Constraints from slide-authoring (read that skill before writing)
 
 - Canvas is fixed 1920 × 1080. Design in absolute pixels.
 - Content padding: 100–160 px from edges.
 - Vertical budget = 1080 − top padding − bottom padding. Do not overflow.
+- Keep footers clear: content must end above `bottom: 120px` when using the standard footer at `bottom: 60px`.
+- Build estimate pages are common overflow traps. Use compact rows, split into two pages, or reduce row count rather than letting the footer overlap.
+- Specific pitfall: five milestone rows at ~100px height plus heading/eyebrow/gaps will collide with the footer on a 1080px canvas. Split into `Delivery Scope` (milestones) and `Build Estimate` (total + cost drivers), or use ≤4 compact rows per page.
+- Treat any content visible behind or below the footer as a failed deck, even if `npm run build` succeeds.
 - One idea per page. Split rather than squeeze.
-- Hero title: 140–200 px. Body: 32–44 px.
 - Use `var(--osd-*)` for colors/fonts/sizes so the Design panel can tweak them.
 - Use `useSlidePageNumber()` for page numbers; never hardcode.
 
@@ -201,3 +227,5 @@ const Pill = ({ children }: { children: React.ReactNode }) => (
 - No pricing, guarantees, care tiers, or referral programme — those belong to stage 04.
 - Build-days and infra/API cost drivers only.
 - Do not modify `package.json`, `open-slide.config.ts`, or other decks.
+- Do not use `.map()` for repeated visual cards/rows; instantiate components explicitly so the OpenSlide inspector can edit individual items.
+- Do not call the deck ready until the alignment §7 sections and §10 checklist are satisfied.

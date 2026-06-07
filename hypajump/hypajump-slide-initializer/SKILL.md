@@ -1,6 +1,6 @@
 ---
 name: hypajump-slide-initializer
-description: Install/find the OpenSlide foundry, symlink a repo's deck into it, and run the dev server for HypaJump Engineering Response decks.
+description: Copy a repo's OpenSlide deck into the local OpenSlide foundry, register it, and run the dev server for HypaJump Engineering Response decks.
 version: 1.0.0
 author: Bintang Putra
 license: MIT
@@ -18,7 +18,8 @@ Machine-side skill for rendering HypaJump OpenSlide decks.
 ## What this skill does
 
 - Finds or installs a reusable OpenSlide foundry on the machine (`~/.openslide-foundry` by default; configurable per machine).
-- Symlinks a project's deck folder (`slides/<kebab-id>/`) into the foundry's `slides/` directory.
+- Copies a project's deck folder (`slides/<kebab-id>/`) into the foundry's `slides/` directory.
+- Registers the deck using the correct `.folders.json` object schema.
 - Installs dependencies and runs `npm run dev` so the deck renders.
 
 ## Foundry policy
@@ -26,7 +27,8 @@ Machine-side skill for rendering HypaJump OpenSlide decks.
 - The foundry is **machine-local**, not committed to any project repo.
 - Project repos store **only** `slides/<kebab-id>/index.tsx` + `slides/<kebab-id>/assets/`.
 - Never copy `package.json`, `node_modules`, `open-slide.config.ts`, `tsconfig.json`, or `dist/` into the project repo.
-- Decks are edited in the project repo; the foundry reads them via symlink.
+- Decks are edited in the project repo first, then copied into the foundry for rendering.
+- **Do not symlink decks into the foundry.** Symlinked decks have caused OpenSlide sidebar/home metadata failures in this environment. Copy the deck folder instead.
 
 ## Default paths
 
@@ -78,38 +80,52 @@ After this, Hermes will know about:
 
 A new Hermes session (`/new` or restart) may be needed for newly cloned skills to be discovered.
 
-## Symlink a project deck
+## Copy a project deck
 
 Given a project deck path `<project>/03_engineering_response/slides/<kebab-id>/`:
 
 ```bash
-cd ~/.openslide-foundry/slides
-ln -s <project>/03_engineering_response/slides/<kebab-case-id> <kebab-case-id>
+# Verify source exists first
+ls <project>/03_engineering_response/slides/<kebab-id>/index.tsx
+
+# Replace foundry copy
+rm -rf ~/.openslide-foundry/slides/<kebab-id>
+cp -R <project>/03_engineering_response/slides/<kebab-id> ~/.openslide-foundry/slides/<kebab-id>
 ```
 
-If a symlink or folder with the same name already exists, replace it after confirming with the user (or abort).
+If a foundry folder with the same name already exists, it is a render copy. Replace it from the project source after confirming there are no uncommitted foundry-only edits to preserve.
 
 ## Register the deck
 
-OpenSlide reads `.folders.json` to know which slide folders exist. Add the deck id:
-
-```bash
-cd ~/.openslide-foundry/slides
-# Read current .folders.json
-# Add "<kebab-case-id>" to the "folders" array
-# Write it back
-```
+OpenSlide reads `.folders.json` to know which folder groups exist and which slides belong to them. The schema is **not** an array of strings. It must use folder objects with `id`, `name`, and `icon`, plus `assignments` mapping slide id → folder id.
 
 Example `.folders.json` after registering one deck:
 
 ```json
 {
   "folders": [
-    "testco-engineering-response"
+    {
+      "id": "testco-engineering-response",
+      "name": "TestCo Engineering Response",
+      "icon": { "type": "emoji", "value": "📄" }
+    }
   ],
+  "assignments": {
+    "testco-engineering-response": "testco-engineering-response"
+  }
+}
+```
+
+Bad schema that crashes the sidebar/home shell:
+
+```json
+{
+  "folders": ["testco-engineering-response"],
   "assignments": {}
 }
 ```
+
+If `folders` is an array of strings, OpenSlide components receive `icon: undefined` and can throw errors like `can't access property "type", icon is undefined` or `dropTarget is null`.
 
 Without this step, `npm run dev` and `npm run build` will not see the deck.
 
@@ -140,7 +156,7 @@ npm run preview
 This skill returns:
 
 - `foundry_path` — absolute path to the foundry.
-- `deck_symlink_path` — absolute path to the symlink in the foundry.
+- `deck_copy_path` — absolute path to the copied deck folder in the foundry.
 - `dev_url` — the local URL where the deck is running.
 
 ## OpenSlide skills in the foundry
@@ -162,5 +178,6 @@ The project repo also carries its own `.agents/skills/` (copied from the templat
 
 - **"Cannot find module @open-slide/core"** — run `npm install` inside `~/.openslide-foundry`.
 - **Font missing** — ensure `@fontsource-variable/inter` and `@fontsource-variable/jetbrains-mono` are installed in the foundry.
-- **Symlink already exists** — remove or replace it; never nest symlinks.
-- **Deck not showing** — check that `index.tsx` exports `design`, `meta`, and `pages` per OpenSlide conventions.
+- **Sidebar crashes with `icon is undefined` or `dropTarget is null`** — fix `.folders.json`; `folders` must be objects with `id`, `name`, and `icon`, and `assignments` must map slide id to folder id.
+- **Deck not showing** — check that `index.tsx` exports `design`, `meta`, and `pages` per OpenSlide conventions, and that `.folders.json` assigns the deck id to a folder id.
+- **Deck changes not appearing** — re-copy the project deck into `~/.openslide-foundry/slides/<kebab-id>`; the foundry uses a copy, not a symlink.
