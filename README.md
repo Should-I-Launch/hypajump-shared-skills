@@ -26,8 +26,15 @@ hypajump-shared-skills/
 │   ├── hypajump-project-initializer/SKILL.md  — scaffold a new client project from template
 │   ├── hypajump-slide-initializer/SKILL.md    — foundry mechanics (install, symlink, run)
 │   └── hypajump-slide-maker/SKILL.md          — deck content (brief → sections, theme)
+├── openslide/
+│   ├── create-slide/SKILL.md                  — OpenSlide: workflow for authoring a new deck
+│   ├── create-theme/SKILL.md                  — OpenSlide: create a reusable slide theme
+│   ├── slide-authoring/SKILL.md               — OpenSlide: technical reference for pages
+│   └── apply-comments/SKILL.md                — OpenSlide: apply inspector comment markers
 └── README.md
 ```
+
+Note: `current-slide` from OpenSlide is intentionally omitted because it depends on `node_modules/.open-slide/current.json` relative to the dev-server cwd. Our workflow runs the dev server from the machine-local foundry (`~/.openslide-foundry`) while the deck source lives in the project repo via symlink, so that path resolution does not match.
 
 ## Related repos
 
