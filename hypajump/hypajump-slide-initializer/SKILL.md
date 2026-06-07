@@ -57,6 +57,30 @@ ln -s <project>/03_engineering_response/slides/<kebab-case-id> <kebab-case-id>
 
 If a symlink or folder with the same name already exists, replace it after confirming with the user (or abort).
 
+## Register the deck
+
+OpenSlide reads `.folders.json` to know which slide folders exist. Add the deck id:
+
+```bash
+cd ~/.openslide-foundry/slides
+# Read current .folders.json
+# Add "<kebab-case-id>" to the "folders" array
+# Write it back
+```
+
+Example `.folders.json` after registering one deck:
+
+```json
+{
+  "folders": [
+    "testco-engineering-response"
+  ],
+  "assignments": {}
+}
+```
+
+Without this step, `npm run dev` and `npm run build` will not see the deck.
+
 ## Run the deck
 
 ```bash
