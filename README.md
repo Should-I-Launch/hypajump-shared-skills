@@ -25,9 +25,7 @@ hypajump-shared-skills/
 ├── hypajump/
 │   ├── hypajump-slide-initializer/SKILL.md    — foundry mechanics (install, symlink, run)
 │   ├── hypajump-slide-maker/SKILL.md          — deck content (brief → sections, theme)
-│   ├── hypajump-project-initializer/SKILL.md  — create new project from template
-│   ├── brief-drafter/SKILL.md                 — draft project brief from raw inputs
-│   └── technical-brief-maker/SKILL.md         — write technical brief
+│   └── hypajump-project-initializer/SKILL.md  — create new project from template
 └── README.md
 ```
 
