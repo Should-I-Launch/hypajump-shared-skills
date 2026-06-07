@@ -143,6 +143,21 @@ This skill returns:
 - `deck_symlink_path` — absolute path to the symlink in the foundry.
 - `dev_url` — the local URL where the deck is running.
 
+## OpenSlide skills in the foundry
+
+The OpenSlide CLI (`npx @open-slide/cli init`) scaffolds its own `.agents/skills/` inside the foundry:
+
+- `create-slide` — workflow for authoring a new deck.
+- `create-theme` — create a reusable slide theme.
+- `slide-authoring` — technical reference for pages.
+- `apply-comments` — apply inspector comment markers.
+
+These are available when you work inside the foundry directory (`~/.openslide-foundry`).
+
+The project repo also carries its own `.agents/skills/` (copied from the template) with HypaJump-specific skills. Use whichever matches your cwd:
+- In the project repo → HypaJump skills (`hypajump-slide-maker`, etc.).
+- In the foundry → OpenSlide skills (`create-slide`, `slide-authoring`, etc.).
+
 ## Troubleshooting
 
 - **"Cannot find module @open-slide/core"** — run `npm install` inside `~/.openslide-foundry`.

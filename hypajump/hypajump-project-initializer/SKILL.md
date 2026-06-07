@@ -57,6 +57,7 @@ A folder at `{output_parent}/{year}-{client_name}/` containing:
 - The boilerplate's `AGENTS.md` becomes `05_build/app/AGENTS.md` and governs code conventions there. `05_build/AGENTS.md` (one level up) governs the build stage folder itself. Hermes loads whichever matches your cwd.
 - Always remove `.git/` from the seeded boilerplate so the client project keeps its own history.
 - After seeding, update Traefik hostnames in `.env` and `docker-compose.yml` from `hypajump.<IP>.sslip.io` to the client-specific name.
+- The template includes `.agents/skills/` with HypaJump and OpenSlide authoring instructions. These are readable by any agent tool (Hermes, Claude Code, Codex, Cursor) that scans `.agents/skills/`. They travel with the project repo automatically.
 
 ## One-time command
 
