@@ -34,7 +34,11 @@ Machine-side skill for rendering HypaJump OpenSlide decks.
 - Foundry slides dir: `~/.openslide-foundry/slides/`
 - Project deck: `<project>/03_engineering_response/slides/<kebab-id>/`
 
-## One-time foundry install
+## One-time machine setup
+
+This section covers both the OpenSlide foundry and the Hermes skills needed to author and render decks.
+
+### 1. Install the OpenSlide foundry
 
 If `~/.openslide-foundry` does not exist:
 
@@ -45,6 +49,34 @@ npm install
 # Install fonts required by the HypaJump theme
 npm install @fontsource-variable/inter @fontsource-variable/jetbrains-mono
 ```
+
+### 2. Install the HypaJump shared skills repo
+
+The shared skills repo contains both HypaJump skills (`hypajump-slide-maker`, `hypajump-project-initializer`, this skill) and the OpenSlide authoring skills (`create-slide`, `create-theme`, `slide-authoring`, `apply-comments`). Hermes auto-discovers skills from `~/.hermes/skills/` recursively.
+
+If `~/.hermes/skills/hypajump-shared-skills` does not exist:
+
+```bash
+git clone https://github.com/Should-I-Launch/hypajump-shared-skills.git ~/.hermes/skills/hypajump-shared-skills
+```
+
+If it already exists, pull the latest version:
+
+```bash
+cd ~/.hermes/skills/hypajump-shared-skills && git pull
+```
+
+After this, Hermes will know about:
+
+- `hypajump-project-initializer`
+- `hypajump-slide-initializer`
+- `hypajump-slide-maker`
+- `create-slide`
+- `create-theme`
+- `slide-authoring`
+- `apply-comments`
+
+A new Hermes session (`/new` or restart) may be needed for newly cloned skills to be discovered.
 
 ## Symlink a project deck
 
