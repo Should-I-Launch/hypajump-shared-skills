@@ -39,6 +39,7 @@ export default [Cover, Body] satisfies Page[];
 ```
 
 - `export default` is a **non-empty array of zero-prop React components**, one per page, in order.
+- Do **not** use the obsolete object shape `export const pages = [{ id, render }]`. It can compile but makes OpenSlide home crash with `can't access property 0, slide.default is undefined` because the runtime expects a default export.
 - `meta.title` (optional) shows in the slide header. Default is the folder name.
 - The slide id is the kebab-case folder name. Pick something short and descriptive (`q2-roadmap`, `team-offsite-2026`).
 - `meta.theme` (optional) marks the slide as built from a theme under `themes/`. The id must match a `<id>.md` basename. Surfaces a back-link chip on the slide card and lists the slide on `/themes/<id>`. Omit if the slide isn't derived from a registered theme.
@@ -81,6 +82,10 @@ Every page renders into a fixed **1920 × 1080** canvas. The framework scales it
 ### Vertical budget — content MUST fit 1080px
 
 The canvas does **not** scroll. Anything below 1080px is silently cropped. Before writing JSX, do the math on paper and confirm the page fits. This is the #1 cause of broken slides — assume you will overflow unless you've checked.
+
+**Automated gate:** every deck must pass `node .agents/skills/openslide/slide-authoring/scripts/check-slide-overflow.mjs <slide-id>` after it is copied into the foundry and the dev server is running. The checker uses a headless browser and DOM geometry; this replaces manual eyeballing as the minimum required proof. Mark each page root with `data-slide-page`, each main content block with `data-slide-content`, and the footer with `data-slide-footer` so the checker can separate content from the reserved footer zone.
+
+**Safe content zone:** main content must end at or above **y=900** on the 1920×1080 canvas. The footer owns y=900–1080. If any non-footer content crosses y=900, split the page; do not shrink below the type scale or hide overflow.
 
 **Usable height** = `1080 − top_padding − bottom_padding`. With 120px padding on each side that's **840px**. With 160px each side, **760px**. Pick the padding first, then design within that budget.
 
@@ -570,9 +575,12 @@ This applies whenever the *visual element* repeats, not whenever the *data* does
 ## Self-review before finishing
 
 - [ ] `slides/<id>/index.tsx` `export default`s a non-empty `Page[]`.
-- [ ] Every page's root fills `100% × 100%`.
+- [ ] No obsolete `export const pages = [{ id, render }]` remains in the deck or any foundry deck shown on the home page.
+- [ ] Every page's root fills `100% × 100%` and carries `data-slide-page`.
+- [ ] Every main content wrapper carries `data-slide-content`; footer carries `data-slide-footer`.
 - [ ] Content lives inside padding (no text kisses the edge).
 - [ ] **For every page, sum (font_size × line_height × lines) + gaps + 2×padding ≤ 1080px.** If close, split the page. No `overflow: auto` escape hatches.
+- [ ] Run `node .agents/skills/openslide/slide-authoring/scripts/check-slide-overflow.mjs <slide-id>` against the foundry copy; it must pass before saying the deck is ready.
 - [ ] No bullet wraps to a second line at the chosen font size.
 - [ ] One coherent visual direction across every page (palette + type scale).
 - [ ] Slide declares a top-level `export const design: DesignSystem = { … }` and references the values via `var(--osd-X)` (use `design.X` only when you need a JS number for arithmetic). Only omit the `design` const for a one-off slide whose palette is intentionally locked.

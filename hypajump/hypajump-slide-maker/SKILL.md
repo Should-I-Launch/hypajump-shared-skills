@@ -206,15 +206,18 @@ const Pill = ({ children }: { children: React.ReactNode }) => (
 8. Include a Product Preview wireframe/mockup. If no image asset exists, build a JSX wireframe page and add a note that it is the preview mockup.
 9. Load `hypajump-slide-initializer` to copy, register, and render the deck.
 10. After every later update to `slides/<deck_id>/index.tsx` or assets, immediately copy the updated deck into the foundry render folder before checking the browser. Do not leave the foundry copy stale.
-11. Run `npm run build` in the foundry and inspect all pages for overflow.
-12. Re-check against alignment §7 and §10 before saying the deck is ready.
+11. Before opening the foundry home page, validate **all** foundry decks, not only the current deck: every `~/.openslide-foundry/slides/*/index.tsx` must have `export default [PageName, ...] satisfies Page[]`. If the home crashes with `slide.default is undefined`, an unrelated old deck probably still uses the obsolete `export const pages = [{ id, render }]` contract.
+12. Run `npm run build` in the foundry.
+13. Run `node .agents/skills/openslide/slide-authoring/scripts/check-slide-overflow.mjs <deck_id>` from the project repo while the foundry dev server is running. This headless DOM check must pass; do not rely on manual visual inspection or build success alone.
+14. Re-check against alignment §7 and §10 before saying the deck is ready.
 
 ## Constraints from slide-authoring (read that skill before writing)
 
 - Canvas is fixed 1920 × 1080. Design in absolute pixels.
 - Content padding: 100–160 px from edges.
 - Vertical budget = 1080 − top padding − bottom padding. Do not overflow.
-- Keep footers clear: content must end above `bottom: 120px` when using the standard footer at `bottom: 60px`.
+- Keep footers clear: content must end above `y=900` when using the standard footer at `bottom: 60px`; y=900–1080 is the reserved footer zone.
+- Add `data-slide-page`, `data-slide-content`, and `data-slide-footer` markers so the automated overflow checker can validate every page.
 - Build estimate pages are common overflow traps. Use compact rows, split into two pages, or reduce row count rather than letting the footer overlap.
 - Specific pitfall: five milestone rows at ~100px height plus heading/eyebrow/gaps will collide with the footer on a 1080px canvas. Split into `Delivery Scope` (milestones) and `Build Estimate` (total + cost drivers), or use ≤4 compact rows per page.
 - Treat any content visible behind or below the footer as a failed deck, even if `npm run build` succeeds.

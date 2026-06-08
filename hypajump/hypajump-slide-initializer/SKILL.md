@@ -176,8 +176,10 @@ The project repo also carries its own `.agents/skills/` (copied from the templat
 
 ## Troubleshooting
 
+- **Overflow or footer collision** — build success is not proof of visual fit. From the project repo, run `node .agents/skills/openslide/slide-authoring/scripts/check-slide-overflow.mjs <deck_id>` while the foundry dev server is running. Main content must stay above y=900; split dense pages instead of shrinking type below the slide-authoring scale.
+- **`slide.default is undefined` on the foundry home page** — at least one folder under `~/.openslide-foundry/slides/*/index.tsx` does not export a default non-empty `Page[]`. This can be an unrelated old deck, not the deck you just copied. Scan all foundry decks with `for f in ~/.openslide-foundry/slides/*/index.tsx; do echo "$f"; grep -n "export default" "$f" || true; done`. Old OpenSlide decks that use `export const pages = [{ id, render }]` must be converted to zero-prop `const PageName: Page = () => (...)` components plus `export default [PageName] satisfies Page[]`.
 - **"Cannot find module @open-slide/core"** — run `npm install` inside `~/.openslide-foundry`.
 - **Font missing** — ensure `@fontsource-variable/inter` and `@fontsource-variable/jetbrains-mono` are installed in the foundry.
 - **Sidebar crashes with `icon is undefined` or `dropTarget is null`** — fix `.folders.json`; `folders` must be objects with `id`, `name`, and `icon`, and `assignments` must map slide id to folder id.
-- **Deck not showing** — check that `index.tsx` exports `design`, `meta`, and `pages` per OpenSlide conventions, and that `.folders.json` assigns the deck id to a folder id.
+- **Deck not showing** — check that `index.tsx` exports `design`, `meta`, and a default non-empty `Page[]`; current OpenSlide does not use `export const pages`. Also check that `.folders.json` assigns the deck id to a folder id.
 - **Deck changes not appearing** — re-copy the project deck into `~/.openslide-foundry/slides/<kebab-id>`; the foundry uses a copy, not a symlink.
