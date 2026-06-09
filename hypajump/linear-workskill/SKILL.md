@@ -1,6 +1,6 @@
 ---
 name: linear-workskill
-description: "Linear task management for the HypaJump ENG team — create issues, fetch assigned tasks, add comments. English only, assign to yourself by default, status=Todo, project required, labels matched from the existing list. Fetch excludes backlog unless explicitly told otherwise."
+description: "Linear task management for the HypaJump ENG team — create issues, fetch assigned tasks, add comments. English only, assign to the task's owner, status=Todo, project required, labels matched from the existing list. Fetch excludes backlog unless explicitly told otherwise."
 version: 2.0.0
 author: Hermes Agent
 license: MIT
@@ -25,8 +25,15 @@ Account → Security & access → Personal API keys).
 ENG team ID: bbc7bca7-036e-463b-b500-933036baff44
 ```
 
-Your own user id is not hardcoded — resolve it at runtime with `viewer { id }` (see the
-"assign to yourself" note in Operation 3).
+### Team members (for assignment)
+
+| User ID                               | Name           |
+|---------------------------------------|----------------|
+| 7c858f43-1caf-4185-ad60-79adb1d48d02 | Bintang Putra  |
+| 040bfdcb-016a-4137-973a-cb19d8e55437 | Brett Chilton  |
+| 44a0dbf0-652e-48b8-974e-3ee5d4044f6c | Tim (tims)     |
+
+If a name isn't in this table, resolve it live: `users(first:50){ nodes { id name email } }`.
 
 ### Workflow States (ENG Team)
 
@@ -129,10 +136,11 @@ result = gql(
 
 ---
 
-## Operation 2: Fetch Your Assigned Tasks
+## Operation 2: Fetch Assigned Tasks
 
-Fetch issues assigned to you. Resolve your user id with `viewer { id }`, then filter by
-state types **unstarted, started** — exclude **backlog** unless explicitly asked.
+Fetch issues assigned to a given person. Resolve their user id from the team-members table
+above (or live via `users`), then filter by state types **unstarted, started** — exclude
+**backlog** unless explicitly asked.
 
 ### Rules
 - Default: fetch only `Todo` (unstarted), `In Progress` (started), `blocked` (started).
@@ -142,7 +150,7 @@ state types **unstarted, started** — exclude **backlog** unless explicitly ask
 ### Query
 
 ```python
-me = gql("query { viewer { id } }")["data"]["viewer"]["id"]
+assignee_id = "7c858f43-1caf-4185-ad60-79adb1d48d02"  # e.g. Bintang — pick from team-members table
 result = gql(
     """
     query($assigneeId: String!, $stateTypes: [String!]) {
@@ -152,7 +160,7 @@ result = gql(
       }
     }
     """,
-    {"assigneeId": me, "stateTypes": ["unstarted", "started"]}  # add "backlog" only if asked
+    {"assigneeId": assignee_id, "stateTypes": ["unstarted", "started"]}  # add "backlog" only if asked
 )
 ```
 
@@ -168,7 +176,7 @@ Create a new issue with these **mandatory rules**:
 1. **Status must be Todo** — set `stateId` to `a6feb182-6a1b-4101-b974-bf0730c46329` (Todo, unstarted). NOT Backlog.
 2. **Project is required** — set `projectId`. If the user doesn't specify a project or you're unsure which it belongs to, **ask before creating**. Do not guess.
 3. **English only** — title and description always in English.
-4. **Assign to yourself by default** — resolve your own id via `viewer { id }` and set `assigneeId` to it, unless the user asks to assign someone else (then resolve that person via `users { nodes { id name email } }`).
+4. **Assign to the task's owner** — assign each issue to whoever owns it in context. In a meeting summary, that's the person named as responsible for the action item (Bintang, Brett, Tim). Resolve the id from the team-members table (or live via `users`). If no owner is implied, ask or leave unassigned.
 5. **Labels** — pick the most appropriate ENG label(s) from the list above. Use label IDs, not names.
 6. **Priority** — infer from context or use 2 (High) as default.
 
@@ -188,7 +196,7 @@ Create a new issue with these **mandatory rules**:
 ### Create mutation
 
 ```python
-me = gql("query { viewer { id } }")["data"]["viewer"]["id"]
+assignee_id = "040bfdcb-016a-4137-973a-cb19d8e55437"  # the task owner — pick from team-members table
 result = gql(
     "mutation($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier title url } } }",
     {
@@ -197,7 +205,7 @@ result = gql(
             "description": "Description in English",
             "teamId": "bbc7bca7-036e-463b-b500-933036baff44",
             "projectId": "PROJECT_UUID",
-            "assigneeId": me,
+            "assigneeId": assignee_id,
             "stateId": "a6feb182-6a1b-4101-b974-bf0730c46329",
             "priority": 2,
             "labelIds": ["LABEL_UUID"]
