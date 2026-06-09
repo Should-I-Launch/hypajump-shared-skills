@@ -287,3 +287,20 @@ Do NOT query these — they don't exist on `Team`/`Organization`: `slackChannel`
 
 See `references/linear-slack-troubleshooting.md` for a full diagnostic transcript.
 See `references/linear-document-download.md` for downloading document attachments from Linear upload URLs.
+
+
+## Keeping this skill current (IMPORTANT)
+
+The Projects, Labels, and Team-members tables above are a cached snapshot — they go stale
+as the workspace grows. Whenever you encounter something NOT recorded here:
+
+- A **new project** (you queried `projects` and found one missing from the table, or the
+  user names a project you don't have an id for),
+- A **new label**, or
+- A **new team member** you had to resolve live via `users`,
+
+then UPDATE this skill immediately (`skill_manage(action='patch', name='linear-workskill')`)
+to add the new id to the right table. Don't just use it for the current task and move on —
+record it so the next run has it. This skill is shared via
+`Should-I-Launch/hypajump-shared-skills`; after patching your local copy, sync the same
+change back to that repo so every colleague's agent gets it too.
