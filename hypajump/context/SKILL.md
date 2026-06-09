@@ -21,16 +21,28 @@ This skill must work in two situations:
 - **Fresh agent / fresh VPS** — only a Linear API key is configured. No workspace, no
   cloned repos, no `context.md` yet. In that case you BOOTSTRAP everything from Linear.
 
-## Step 0 — Resolve the workspace directory
+## Step 0 — Resolve the workspace directory (workspace-agnostic)
 
-There is one workspace folder that holds project repos and the single `context.md`.
-Resolve its path in this order and use the first that applies:
+There is one workspace folder per machine that holds project repos and the single
+`context.md`. This skill must NOT assume any particular user's layout — resolve `$WORK`
+by detection, in this order, and use the first that applies:
 
-1. `$HYPAJUMP_WORK_DIR` environment variable, if set.
-2. `~/Desktop/work` if it exists (Bintang's Mac).
-3. `~/work` otherwise (default for a fresh Linux VPS) — create it if missing.
+1. **Explicit override** — if `$HYPAJUMP_WORK_DIR` is set, use it. This is the supported
+   way for anyone (you, a colleague, a VPS) to pin their own workspace location.
 
-Call this resolved path `$WORK`. The mapping file is always `$WORK/context.md`.
+2. **Find an existing `context.md`** — if no override, look for a `context.md` that already
+   exists in the common workspace roots and use its directory. Check, in order:
+   `~/Desktop/work`, `~/work`, `~/projects`, `~/hypajump`, and the current working
+   directory. The first one containing a `context.md` wins. (A quick
+   `find ~ -maxdepth 3 -name context.md` can locate it if none of those match.)
+
+3. **No workspace yet (fresh agent)** — if nothing is found, create one. Use
+   `$HYPAJUMP_WORK_DIR` if it was meant to be set, otherwise default to `~/work` on Linux
+   or `~/Desktop/work` on macOS. Create the folder.
+
+Call this resolved path `$WORK`. The mapping file is always `$WORK/context.md`. Do NOT
+hardcode any one person's path — different colleagues will have different `$WORK` roots,
+and that's fine because the mapping inside `context.md` uses each machine's own paths.
 
 ## Step 1 — Get the mapping (read it, or bootstrap it)
 
