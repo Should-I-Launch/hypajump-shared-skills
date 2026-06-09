@@ -22,27 +22,23 @@ A ready-to-use project folder with:
 
 ## How to Use It
 
-Set your project name and run one command:
+Invoke the skill in Hermes with a natural prompt. Tell it the project name and where to put it.
 
-```bash
-APP_NAME="oz-oils-lead-gen"
-OUTPUT_PARENT="/home/ubuntu/projects"
+**Example prompts:**
 
-mkdir -p "${OUTPUT_PARENT}"
-cd "${OUTPUT_PARENT}"
-
-git clone https://github.com/Should-I-Launch/hypajump-project-template.git "${APP_NAME}"
-cd "${APP_NAME}"
-rm -rf .git
-
-rm -rf 05_build/app
-git clone https://github.com/Should-I-Launch/hypajump_template.git 05_build/app
-cd 05_build/app
-rm -rf .git
-cd ../..
+```
+/hypajump-project-initializer initialize a new project called oz-oils-lead-gen in /home/ubuntu/projects
 ```
 
-Replace `oz-oils-lead-gen` with your project slug (kebab-case, e.g. `motor-biz-fines`, `biotech-pid-viewer`).
+```
+/hypajump-project-initializer scaffold motor-biz-fines here
+```
+
+```
+/hypajump-project-initializer set up a new workspace for biotech-pid-viewer under ~/projects
+```
+
+The skill handles all the cloning, folder setup, and boilerplate seeding automatically.
 
 ## What the Folder Looks Like After
 
