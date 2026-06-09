@@ -1,21 +1,28 @@
 # hypajump-project-initializer
 
-Scaffold a new HypaJump client project in one command. No manual cloning, no renaming folders, no guessing where things go.
+**What this is:** A one-click starter kit for every new HypaJump client project. Instead of manually creating folders and copying files, this skill sets up the entire workspace automatically.
 
-## What it does
+## Why We Built This
 
-1. Clones the 5-stage project template into a new folder
-2. Seeds stage 05 with the app boilerplate (FastAPI + React)
-3. Removes template git history so the new project starts clean
-4. Leaves stages 01-04 empty and ready for brief/engineering workflow
+Every client project at HypaJump follows the same 5-stage structure. Doing it by hand is repetitive and error-prone. This skill guarantees every project starts with the right folders, the right boilerplate, and the right conventions — so the team can focus on the actual work, not folder setup.
 
-## When to use it
+## What You Get
 
-- Starting any new client engagement
-- Spinning up a new internal tool (like CopyFlo)
-- Any time you need a fresh 5-stage workspace
+A ready-to-use project folder with:
 
-## One command
+- **Stages 01–04** — empty and waiting for your brief, engineering response, and proposal
+- **Stage 05** — pre-loaded with our FastAPI + React + Docker boilerplate so engineering can start immediately after client approval
+- **Project context files** — `AGENTS.md` and `README.md` that help any AI tool (Hermes, Claude Code, Codex, Cursor) understand the project structure
+
+## When to Use This
+
+- Starting a new client engagement
+- Spinning up an internal tool (like CopyFlo)
+- Any time you need a fresh, properly structured workspace
+
+## How to Use It
+
+Set your project name and run one command:
 
 ```bash
 APP_NAME="oz-oils-lead-gen"
@@ -35,40 +42,44 @@ rm -rf .git
 cd ../..
 ```
 
-Replace `APP_NAME` with your project slug (kebab-case, e.g. `motor-biz-fines`, `biotech-pid-viewer`).
+Replace `oz-oils-lead-gen` with your project slug (kebab-case, e.g. `motor-biz-fines`, `biotech-pid-viewer`).
 
-## What you get
+## What the Folder Looks Like After
 
 ```
 oz-oils-lead-gen/
-├── 01_initial_engagement/     ← raw transcripts, emails, discovery notes
-├── 02_project_brief/          ← PROJECT_BRIEF.md
-├── 03_engineering_response/   ← engineering response + OpenSlide deck
-├── 04_commercial_proposal/    ← client-facing proposal
+├── 01_initial_engagement/    ← discovery notes, transcripts, emails
+├── 02_project_brief/         ← the client brief lives here
+├── 03_engineering_response/  ← technical response + OpenSlide deck
+├── 04_commercial_proposal/   ← client-facing proposal
 ├── 05_build/
-│   ├── AGENTS.md              ← build-stage context
-│   └── app/                   ← FastAPI + React + Docker boilerplate
+│   ├── AGENTS.md             ← context for the build stage
+│   └── app/                  ← FastAPI + React + Docker boilerplate
 │       ├── backend/
 │       ├── frontend/
 │       └── docker-compose.yml
-├── AGENTS.md                  ← root project map
+├── AGENTS.md                 ← root project map
 └── README.md
 ```
 
-## Two phases
+## Two-Phase Workflow
 
-1. **Brief phase** — work in 01-04. 05_build/app stays empty.
-2. **Build phase** — seed 05_build/app from hypajump_template, then build there.
+| Phase | What Happens |
+|-------|--------------|
+| **Brief phase** | Work in stages 01–04. Stage 05/app stays untouched. |
+| **Build phase** | Once the proposal is approved, the boilerplate in 05/app is ready to go. |
 
-## Next steps after scaffolding
+## What to Do Next
 
 1. `git init` + `git add -A` + `git commit -m "Initial scaffold"`
-2. Create GitHub repo: `gh repo create Should-I-Launch/APP_NAME --public --source=. --push`
-3. Add brief material to `02_project_brief/`
-4. Work the pipeline: brief → engineering response → proposal → build
+2. Create a GitHub repo: `gh repo create Should-I-Launch/APP_NAME --public --source=. --push`
+3. Drop your brief materials into `02_project_brief/`
+4. Run the pipeline: brief → engineering response → proposal → build
 
-## Common issues
+## If Something Goes Wrong
 
-- **Folder already exists** — pick a different APP_NAME or delete the existing folder
-- **Clone fails** — check network or repo access (should be public)
-- **Two AGENTS.md in 05_build** — correct. 05_build/AGENTS.md for stage context, 05_build/app/AGENTS.md for code conventions
+| Problem | Fix |
+|---------|-----|
+| Folder already exists | Pick a different name or delete the old folder |
+| Clone fails | Check your internet or repo access |
+| Two AGENTS.md files in 05_build | This is correct — one is for the stage, one is for the code |
