@@ -1,13 +1,13 @@
 # Slide Sync — Auto-deploy OpenSlide Decks
 
-When you push changes to `**/slides/*/index.tsx` in any HypaJump project repo, the deck is automatically rebuilt on `should-i` and served at `http://slides.hypajump.ai:8889/`.
+When you push changes to `**/slides/*/index.tsx` in any HypaJump project repo, the deck is automatically rebuilt on `should-i` and served at `https://slides.hypajump.ai`.
 
 ## How it works
 
 ```
 Push → GitHub Action (slide-sync.yml)
   → POST http://should-i:8644/webhooks/slide-sync (HMAC-SHA256)
-  → Hermes agent loads hypajump-slide-webhook-sync
+  → Hypa (Hermes agent on should-i) loads hypajump-slide-webhook-sync
   → Clone repo → copy deck to foundry → npm run build → nginx reload
   → Slack notification to #assistant
 ```
@@ -22,12 +22,25 @@ Push → GitHub Action (slide-sync.yml)
 
 The webhook skill lives on `should-i` at `~/.hermes/skills/productivity/hypajump-slide-webhook-sync/SKILL.md`. It is NOT committed to this repo — it runs server-side.
 
+## Client-facing deck sharing (current limitation)
+
+OpenSlide builds one single React SPA. All decks (`slides/*/`) are bundled into one JS payload. Client-side routing (`/s/:deckId`) handles navigation. This means:
+
+- Anyone who can access any deck can navigate to every other deck via the browser UI or address bar.
+- Nginx path-rules alone CANNOT prevent access to other decks — once the SPA loads, routing is client-side and never touches nginx again.
+- The home page (`/`) lists every deck by name, even if clicking them would return 403.
+
+Per-deck build (filtering `.folders.json` to one deck, building to a separate `dist-<deck>/` folder, serving via unguessable nginx token prefix) is the planned fix but blocked: OpenSlide has no CLI build flag for per-deck output yet.
+
+For now, share individual decks with clients via manual HTML/PDF export from the OpenSlide UI.
+
 ## Server
 
 - **Host:** should-i (170.64.182.105)
 - **Foundry:** /root/.openslide-foundry/
 - **Nginx:** port 8889 → /root/.openslide-foundry/dist/
 - **Webhook:** Hermes gateway port 8644, HMAC secret
+- **Live URL:** https://slides.hypajump.ai
 
 ## Repos with auto-sync
 
