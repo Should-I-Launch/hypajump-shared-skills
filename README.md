@@ -23,6 +23,7 @@ New/updated skills are picked up on the next Hermes session (`/new` or restart).
 ```
 hypajump-shared-skills/
 ├── hypajump/
+│   ├── hypajump-dns/SKILL.md               — Cloudflare DNS management for hypajump.ai
 │   ├── hypajump-project-initializer/SKILL.md  — scaffold a new client project from template
 │   ├── hypajump-slide-initializer/SKILL.md    — foundry mechanics (install, symlink, run)
 │   └── hypajump-slide-maker/SKILL.md          — deck content (brief → sections, theme)
