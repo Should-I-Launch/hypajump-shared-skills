@@ -25,6 +25,7 @@ hypajump-shared-skills/
 ├── hypajump/
 │   ├── hypajump-dns/SKILL.md               — Cloudflare DNS management for hypajump.ai
 │   ├── hypajump-project-initializer/SKILL.md  — scaffold a new client project from template
+│   ├── hypajump-template-audit/SKILL.md        — audit client projects against the project template
 │   ├── hypajump-slide-initializer/SKILL.md    — foundry mechanics (install, symlink, run)
 │   └── hypajump-slide-maker/SKILL.md          — deck content (brief → sections, theme)
 ├── openslide/
